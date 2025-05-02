@@ -1,118 +1,333 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import * as XLSX from 'xlsx';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import * as XLSX from "xlsx";
+
+const API_URL = "http://192.168.60.60:8080/o/hindi";
+// const API_URL = "http://192.168.60.60:8080/o/student";
+// const API_URL = "http://192.168.60.60:8080/o/hindi";
+const headers = {};
 
 // const API_URL = '/o/student';
-const API_URL = 'http://192.168.60.60:8080/o/student';
-
 // const csrfToken = window?.Liferay?.authToken || "";
 // const headers = {
-  // "Content-Type": "application/json",
-  // "x-csrf-token": csrfToken,
+//     "Content-Type": "application/json",
+//     "x-csrf-token": csrfToken,
 // };
-const headers = {
-};
 
+const headerJSON = [
+    "Sr. No.",
+    "Record Ref. No.",
+    "तिमाही",
+    "साल",
+    "अंचल",
+    "शाखा",
+    "बैंक/वित्तीय संस्था का नाम औरपूरा पता",
+    "भाषाई क्षेत्र",
+    "एस.टी.डी कोड",
+    "फोन नं.",
+    "ई-मेल",
+    "(क) जारी कागजात की कुल संख्या",
+    "(ख) द्विभाषी रूप में जारी कागज़ात की संख्‍या",
+    "(ग) केवल अंग्रेजी में जारी किये गये कागजात",
+    "(घ) केवल हिंदी में जारी किये गये कागजात",
+    "(क) हिंदी में प्राप्त कुल पत्रों की संख्या",
+    "(ख) इनमें से कितनों के उत्तर हिन्दी में दिए गए",
+    "(ग) इनमें से कितनों के उत्तर अंग्रेजी में दिए गए",
+    "(घ) इनमें से कितनों के उत्तर दिए जाने अपेक्षित नहीं थे",
+    "‘क’क्षेत्र से अंग्रेजी में प्राप्त पत्रों की संख्या",
+    "‘क’क्षेत्र से इनमें से कितनों के उत्तर हिंदी में दिए गए",
+    "‘क’क्षेत्र से इनमें से कितनों के उत्तर अंग्रेजी में दिए",
+    "‘क’क्षेत्र से इनमें से कितनों के उत्तर अपेक्षित नहीं थे",
+    "‘ख’क्षेत्र से अंग्रेजी में प्राप्त पत्रों की संख्या",
+    "‘ख’क्षेत्र से इनमें से कितनों के उत्तर हिंदी में दिए गए",
+    "‘ख’क्षेत्र से इनमें से कितनों के उत्तर अंग्रेजी में दिए",
+    "‘ख’क्षेत्र से इनमें से कितनों के उत्तर अपेक्षित नहीं थे",
+    "‘क’क्षेत्र से हिंदी में",
+    "‘क’क्षेत्र से अंग्रेजी में",
+    "‘क’क्षेत्र से भेजे गए पत्रों की कुल संख्या",
+    "‘ख’क्षेत्र से हिंदी में",
+    "‘ख’क्षेत्र से अंग्रेजी में",
+    "‘ख’क्षेत्र से भेजे गए पत्रों की कुल संख्या",
+    "‘ग’क्षेत्र को हिंदी में",
+    "‘ग’क्षेत्र को अंग्रेजी में",
+    "‘ग’क्षेत्र को भेजे गए पत्रों की कुल संख्या",
+    "हिंदी में लिखी गई टिप्‍पणियों के पृष्‍ठों की संख्‍या",
+    "अंग्रेजी में लिखी गई टिप्‍पणियों के पृष्‍ठों की संख्‍या",
+    "कुल टिप्‍पणियों के पृष्‍ठों  की संख्‍या",
+    "तिमाही के दौरान पूर्ण दिवसीय आयोजित कार्यशालाओं की संख्‍या",
+    "अधिकारी",
+    "कर्मचारी",
+    "(क) राजभाषा कार्यान्वयन समिति की बैठक की तिथि (केंद्रीय/प्रधान कार्यालय की)",
+    "(ख) अधीनस्थ कार्यालयों में गठित राजभाषा का.समितियों की संख्या",
+    "(ग) इस तिमाही में आयोजित बैठकों की संख्या",
+    "(घ) बैठकों से संबंधित कार्यसूची और कार्यवृत्त क्या हिंदी में जारी किये गये",
+    "(i) पासबुक हिंदी में भरने (नाम,पता,जमा,डेबिट आदि) की सुविधा उपलब्‍ध है ?",
+    "(ii) ऋण वसूली पत्र हिंदी में जारी किए जाते हैं ?",
+    "(iii) सारे फार्म(वाउचर/ड्राफ्ट/जमा रसीदें इत्‍यादि) द्विभाषी हैं?",
+    "9. तिमाही में किए गए उल्लेखनीय कार्य/उपलब्धियों का संक्षिप्त विवरण (अधिकतम 250 कैरेक्टर)",
+    "बैंक की राजभाषा कार्यान्वयन समिति के अध्यक्ष के हस्ताक्षर",
+    "अध्यक्ष का नाम",
+    "पदनाम",
+    "एसटीडी कोड सहित फोन नम्बर",
+    "फैक्स नम्बर",
+    "ई-मेल का पता",
+    "Author Name",
+    "Created On",
+    "Actions",
+];
 function TableComponent() {
-  const [users, setUsers] = useState([]);
-  const [deleteShow, setDeleteShow] = useState(false);
-  const navigate = useNavigate();
+    const [users, setUsers] = useState([]);
+    const [deleteShow, setDeleteShow] = useState(false);
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    axios.get(`${API_URL}/all`, { headers }).then((res) => {
-      const mappedUsers = res.data.map((user) => ({
-      
-        id: user.studentId,
-        fgmoName: user.fgmoName,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-     
+    useEffect(() => {
+        axios.get(`${API_URL}/all`, { headers }).then((res) => {
+            console.log("resresresresresresresres", res);
+            const mappedUsers = res.data.map((user) => ({
+                recordId: user.recordId,
+                allFormsDualLanguage: user.allFormsDualLanguage,
+                authorName: user.authorName,
+                bhashaiKshetra: user.bhashaiKshetra,
+                branch: user.branch,
+                commeteeNum: user.commeteeNum,
+                countFromA: user.countFromA,
+                countFromB: user.countFromB,
+                createdBy: user.createdBy,
+                createdOn: user.createdOn,
+                dateRajbhasha: user.dateRajbhasha,
+                designation: user.designation,
+                email: user.email,
+                emailA: user.emailA,
+                engAns: user.engAns,
+                engAnsA: user.engAnsA,
+                engAnsB: user.engAnsB,
+                engComment: user.engComment,
+                engFromA: user.engFromA,
+                engFromB: user.engFromB,
+                engFromC: user.engFromC,
+                englishPaper: user.englishPaper,
+                faxNumber: user.faxNumber,
+                hindiAns: user.hindiAns,
+                hindiAnsA: user.hindiAnsA,
+                hindiAnsB: user.hindiAnsB,
+                hindiComment: user.hindiComment,
+                hindiFromA: user.hindiFromA,
+                hindiFromB: user.hindiFromB,
+                hindiFromC: user.hindiFromC,
+                hindiIssued: user.hindiIssued,
+                hindiLoan: user.hindiLoan,
+                hindiPaper: user.hindiPaper,
+                labCount: user.labCount,
+                mainTask: user.mainTask,
+                meetingCountDuringCurrentQtr: user.meetingCountDuringCurrentQtr,
+                memberName: user.memberName,
+                nameAddress: user.nameAddress,
+                noTotal: user.noTotal,
+                noTotalSecond: user.noTotalSecond,
+                notAns: user.notAns,
+                notAnsA: user.notAnsA,
+                notAnsB: user.notAnsB,
+                officers: user.officers,
+                passbookA: user.passbookA,
+                phoneNo: user.phoneNo,
+                recordId: user.recordId,
+                qtr: user.qtr,
+                rrn: user.rrn,
+                signature: user.signature,
+                status: user.status,
+                stdCode: user.stdCode,
+                stdCode_: user.stdCode_,
+                totalComment: user.totalComment,
+                totalFromA: user.totalFromA,
+                totalFromB: user.totalFromB,
+                totalFromC: user.totalFromC,
+                totalHindiIssuedNumber: user.totalHindiIssuedNumber,
+                updatedOn: user.updatedOn,
+                workers: user.workers,
+                year: user.year,
+                zone: user.zone,
+            }));
+            setUsers(mappedUsers);
+        });
 
-      }));
+        // axios.get(`${API_URL}/get-user-all-role`, { headers }).then((res) => {
+        //     const hasRole = res?.data?.includes("Guest");
+        //     // const hasRole = res?.data?.includes("HOADMIN");
+        //     setDeleteShow(hasRole);
+        // });
+    }, []);
 
-      setUsers(mappedUsers);
-      console.log("user",mappedUsers);
-    });
+    const handleDelete = (user) => {
+        const confirmDelete = window.confirm(
+            `Are you sure you want to delete record "${user.rrn}"?`
+        );
+        if (!confirmDelete) return;
+        axios.delete(`${API_URL}/${user.recordId}`, { headers }).then(() => {
+            const filteredUser = users.filter(
+                (u) => u.recordId !== user.recordId
+            );
+            setUsers(filteredUser);
+        });
+    };
+    const exportToExcel = async () => {
+        try {
+            const postData = {
+                columnName: "",
+                columnValue: "",
+            };
+            const response = await axios.post(
+                "http://192.168.60.60:8080/o/hindi/download",
+                postData,
+                {
+                    responseType: "blob",
+                }
+            );
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "report.xlsx";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Download failed:", error);
+        }
+    };
 
-    axios.get(`${API_URL}/get-user-all-role`, { headers }).then((res) => {
-      console.log("resresresresresresresres",res);
-      
-      // const hasRole = res?.data?.includes('HOADMIN');
-      const hasRole = res?.data[0]?.includes('Guest');
 
-      setDeleteShow(hasRole);
-    });
-  }, []);
+    return (
+        <div className="container-fluid">
+            <div className="row">
+                <div className="col-12">
 
-  const handleDelete = (id) => {
-    axios.delete(`${API_URL}/${id}`, { headers }).then(() => {
-      setUsers((prev) => prev.filter((user) => user.id !== id));
-    });
-  };
+                
+            <h2>Tabular Dashboard View</h2>
+            <div className="d-flex justify-content-end">
 
-  const exportToExcel = () => {
-    const worksheetData = users.map((user) => ({
-      FGMO: user.fgmoName,
-      'First Name': user.firstName,
-      'Last Name': user.lastName,
-      Email: user.email,
-    }));
+            <button className="btn btn-primary mx-2 mb-2" onClick={() => navigate("/roiform/add")} >
+                Add User
+            </button>
+            <a className="btn btn-primary mb-2" target="_blank" onClick={exportToExcel}>
+                Export to Excel
+            </a>
+            </div>
+            <div className="table-responsive">
 
-    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+            <table>
+                <thead>
+                    <tr>
+                        {headerJSON.map((headerName, index) => (
+                            <th key={index}>{headerName}</th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    {users && users.length > 0 &&
+                        users.map((user, index) => (
+                            <tr key={user.recordId}>
+                                <td>{index + 1}</td>
+                                <td>{user.rrn}</td>
+                                <td>{user.qtr}</td>
+                                <td>{user.year}</td>
+                                <td>{user.zone}</td>
+                                <td>{user.branch}</td>
+                                <td>{user.nameAddress}</td>
+                                <td>{user.bhashaiKshetra}</td>
+                                <td>{user.stdCode}</td>
+                                <td>{user.phoneNo}</td>
+                                <td>{user.email}</td>
+                                <td>{user.noTotal}</td>
+                                <td>{user.noTotalSecond}</td>
+                                <td>{user.englishPaper}</td>
+                                <td>{user.totalHindiIssuedNumber}</td>
+                                <td>{user.hindiPaper}</td>
+                                <td>{user.hindiAns}</td>
+                                <td>{user.engAns}</td>
+                                <td>{user.notAns}</td>
+                                <td>{user.countFromA}</td>
+                                <td>{user.hindiAnsA}</td>
+                                <td>{user.engAnsA}</td>
+                                <td>{user.notAnsA}</td>
+                                <td>{user.countFromB}</td>
+                                <td>{user.hindiAnsB}</td>
+                                <td>{user.engAnsB}</td>
+                                <td>{user.notAnsB}</td>
+                                <td>{user.hindiFromA}</td>
+                                <td>{user.engFromA}</td>
+                                <td>{user.totalFromA}</td>
+                                <td>{user.hindiFromB}</td>
+                                <td>{user.engFromB}</td>
+                                <td>{user.totalFromB}</td>
+                                <td>{user.hindiFromC}</td>
+                                <td>{user.engFromC}</td>
+                                <td>{user.totalFromC}</td>
+                                <td>{user.hindiComment}</td>
+                                <td>{user.engComment}</td>
+                                <td>{user.totalComment}</td>
+                                <td>{user.labCount}</td>
+                                <td>{user.officers}</td>
+                                <td>{user.workers}</td>
+                                <td>{user.dateRajbhasha}</td>
+                                <td>{user.commeteeNum}</td>
+                                <td>{user.meetingCountDuringCurrentQtr}</td>
+                                <td>{user.hindiIssued}</td>
+                                <td>{user.passbookA}</td>
+                                <td>{user.hindiLoan}</td>
+                                <td>{user.allFormsDualLanguage}</td>
+                                <td>{user.mainTask}</td>
+                                <td>{user.signature}</td>
+                                <td>{user.memberName}</td>
+                                <td>{user.designation}</td>
+                                <td>{user.stdCode_}</td>
+                                <td>{user.faxNumber}</td>
+                                <td>{user.emailA}</td>
+                                <td>{user.authorName}</td>
+                                <td>{user.createdOn}</td>
 
-    XLSX.writeFile(workbook, 'users.xlsx');
-  };
-
-  return (
-    <div className="container">
-      <h2>Tabular Dashboard View</h2>
-      <button onClick={() => navigate('/roiform/add')} className="btn">
-        Add User
-      </button>
-      <button onClick={exportToExcel} className="btn">
-        Export to Excel
-      </button>
-      <table>
-        <thead>
-          <tr>
-            <th>FGMO</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.fgmoName}</td>
-              <td>{user.firstName}</td>
-              <td>{user.lastName}</td>
-              <td>{user.email}</td>
-              <td>
-              <button onClick={() => navigate(`/roiform/edit/${user.id}`)} className="btn">
-                  Edit
-                </button>
-                <button onClick={() => navigate(`/roiform/view/${user.id}`)} className="btn">
-                  View
-                </button>
-            
-                {deleteShow && (
-                  <button onClick={() => handleDelete(user.id)} className="btn">
-                    Delete
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+                                <td>
+                                    <button
+                                    size="sm"
+                                        onClick={() =>
+                                            navigate(
+                                                `/roiform/view/${user.recordId}`
+                                            )
+                                        }
+                                        className="btn"
+                                    >
+                                        View
+                                    </button>
+                                    <button
+                                    size="sm"
+                                        onClick={() =>
+                                            navigate(
+                                                `/roiform/edit/${user.recordId}`
+                                            )
+                                        }
+                                        className="btn"
+                                    >
+                                        Edit
+                                    </button>
+                                    {/* {deleteShow && ( */}
+                                    <button
+                                    size="sm"
+                                        onClick={() => handleDelete(user)}
+                                        className="btn"
+                                    >
+                                        Delete
+                                    </button>
+                                    {/* // )} */}
+                                </td>
+                            </tr>
+                        ))}
+                </tbody>
+            </table>
+            </div>
+            </div>
+            </div>
+        </div>
+    );
 }
 
 export default TableComponent;
