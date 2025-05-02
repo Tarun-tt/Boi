@@ -80,76 +80,92 @@ function TableComponent() {
     const [users, setUsers] = useState([]);
     const [deleteShow, setDeleteShow] = useState(false);
     const navigate = useNavigate();
+    const [filterOptions, setFilterOptions] = useState([]);
+    const [totalCount, setTotalCount] = useState(0);
 
+    const [filterParams, setFilterParams] = useState({
+        columnName: "",
+        columnValue: "",
+        pageNumber: 1,
+        pageSize: 10,
+    });
+
+    const [form, setForm] = useState({
+        zone: "",
+    });
     useEffect(() => {
-        axios.get(`${API_URL}/all`, { headers }).then((res) => {
-            console.log("resresresresresresresres", res);
-            const mappedUsers = res.data.map((user) => ({
-                recordId: user.recordId,
-                allFormsDualLanguage: user.allFormsDualLanguage,
-                authorName: user.authorName,
-                bhashaiKshetra: user.bhashaiKshetra,
-                branch: user.branch,
-                commeteeNum: user.commeteeNum,
-                countFromA: user.countFromA,
-                countFromB: user.countFromB,
-                createdBy: user.createdBy,
-                createdOn: user.createdOn,
-                dateRajbhasha: user.dateRajbhasha,
-                designation: user.designation,
-                email: user.email,
-                emailA: user.emailA,
-                engAns: user.engAns,
-                engAnsA: user.engAnsA,
-                engAnsB: user.engAnsB,
-                engComment: user.engComment,
-                engFromA: user.engFromA,
-                engFromB: user.engFromB,
-                engFromC: user.engFromC,
-                englishPaper: user.englishPaper,
-                faxNumber: user.faxNumber,
-                hindiAns: user.hindiAns,
-                hindiAnsA: user.hindiAnsA,
-                hindiAnsB: user.hindiAnsB,
-                hindiComment: user.hindiComment,
-                hindiFromA: user.hindiFromA,
-                hindiFromB: user.hindiFromB,
-                hindiFromC: user.hindiFromC,
-                hindiIssued: user.hindiIssued,
-                hindiLoan: user.hindiLoan,
-                hindiPaper: user.hindiPaper,
-                labCount: user.labCount,
-                mainTask: user.mainTask,
-                meetingCountDuringCurrentQtr: user.meetingCountDuringCurrentQtr,
-                memberName: user.memberName,
-                nameAddress: user.nameAddress,
-                noTotal: user.noTotal,
-                noTotalSecond: user.noTotalSecond,
-                notAns: user.notAns,
-                notAnsA: user.notAnsA,
-                notAnsB: user.notAnsB,
-                officers: user.officers,
-                passbookA: user.passbookA,
-                phoneNo: user.phoneNo,
-                recordId: user.recordId,
-                qtr: user.qtr,
-                rrn: user.rrn,
-                signature: user.signature,
-                status: user.status,
-                stdCode: user.stdCode,
-                stdCode_: user.stdCode_,
-                totalComment: user.totalComment,
-                totalFromA: user.totalFromA,
-                totalFromB: user.totalFromB,
-                totalFromC: user.totalFromC,
-                totalHindiIssuedNumber: user.totalHindiIssuedNumber,
-                updatedOn: user.updatedOn,
-                workers: user.workers,
-                year: user.year,
-                zone: user.zone,
-            }));
-            setUsers(mappedUsers);
-        });
+        axios
+            .post(`${API_URL}/records`, filterParams, { headers })
+            .then((res) => {
+                console.log("resresresresresresresres", res);
+                setTotalCount(res?.data?.count);
+                const mappedUsers = res?.data?.data?.map((user) => ({
+                    recordId: user.recordId,
+                    allFormsDualLanguage: user.allFormsDualLanguage,
+                    authorName: user.authorName,
+                    bhashaiKshetra: user.bhashaiKshetra,
+                    branch: user.branch,
+                    commeteeNum: user.commeteeNum,
+                    countFromA: user.countFromA,
+                    countFromB: user.countFromB,
+                    createdBy: user.createdBy,
+                    createdOn: user.createdOn,
+                    dateRajbhasha: user.dateRajbhasha,
+                    designation: user.designation,
+                    email: user.email,
+                    emailA: user.emailA,
+                    engAns: user.engAns,
+                    engAnsA: user.engAnsA,
+                    engAnsB: user.engAnsB,
+                    engComment: user.engComment,
+                    engFromA: user.engFromA,
+                    engFromB: user.engFromB,
+                    engFromC: user.engFromC,
+                    englishPaper: user.englishPaper,
+                    faxNumber: user.faxNumber,
+                    hindiAns: user.hindiAns,
+                    hindiAnsA: user.hindiAnsA,
+                    hindiAnsB: user.hindiAnsB,
+                    hindiComment: user.hindiComment,
+                    hindiFromA: user.hindiFromA,
+                    hindiFromB: user.hindiFromB,
+                    hindiFromC: user.hindiFromC,
+                    hindiIssued: user.hindiIssued,
+                    hindiLoan: user.hindiLoan,
+                    hindiPaper: user.hindiPaper,
+                    labCount: user.labCount,
+                    mainTask: user.mainTask,
+                    meetingCountDuringCurrentQtr:
+                        user.meetingCountDuringCurrentQtr,
+                    memberName: user.memberName,
+                    nameAddress: user.nameAddress,
+                    noTotal: user.noTotal,
+                    noTotalSecond: user.noTotalSecond,
+                    notAns: user.notAns,
+                    notAnsA: user.notAnsA,
+                    notAnsB: user.notAnsB,
+                    officers: user.officers,
+                    passbookA: user.passbookA,
+                    phoneNo: user.phoneNo,
+                    recordId: user.recordId,
+                    qtr: user.qtr,
+                    rrn: user.rrn,
+                    signature: user.signature,
+                    status: user.status,
+                    stdCode: user.stdCode,
+                    stdCode_: user.stdCode_,
+                    totalComment: user.totalComment,
+                    totalFromA: user.totalFromA,
+                    totalFromB: user.totalFromB,
+                    totalFromC: user.totalFromC,
+                    totalHindiIssuedNumber: user.totalHindiIssuedNumber,
+                    updatedOn: user.updatedOn,
+                    workers: user.workers,
+                    year: user.year,
+                    zone: user.zone,
+                }));
+                setUsers(mappedUsers);
+            });
 
         // axios.get(`${API_URL}/get-user-all-role`, { headers }).then((res) => {
         //     const hasRole = res?.data?.includes("Guest");
@@ -196,135 +212,264 @@ function TableComponent() {
         }
     };
 
+    const handleSubmit = (e) => {
+        // e.preventDefault();
+        // if (mode === "edit" && id) {
+        //     axios
+        //         .put(`${API_URL}/${id}`, form, { headers })
+        //         .then(() => navigate("/roiform"))
+        //         .catch((err) => console.error("Update Error:", err));
+        // } else {
+        //     axios
+        //         .post(`${API_URL}/add`, form, { headers })
+        //         .then(() => navigate("/roiform"))
+        //         .catch((err) => console.error("Add Error:", err));
+        // }
+    };
+
+    const handleChange = () => {
+        console.log("asdfasdf");
+    };
+    const clearAllData = () => {
+        console.log("asdfasdf");
+    };
 
     return (
         <div className="container-fluid">
             <div className="row">
                 <div className="col-12">
+                    <h2>Tabular Dashboard View</h2>
+                    {/* <div className="d-flex justify-content-end">
+                        <button
+                            className="btn btn-primary mx-2 mb-2"
+                            onClick={() => navigate("/roiform/add")}
+                        >
+                            Add User
+                        </button>
+                        <a
+                            className="btn btn-primary mb-2"
+                            target="_blank"
+                            onClick={exportToExcel}
+                        >
+                            Export to Excel
+                        </a>
+                    </div> */}
 
-                
-            <h2>Tabular Dashboard View</h2>
-            <div className="d-flex justify-content-end">
-
-            <button className="btn btn-primary mx-2 mb-2" onClick={() => navigate("/roiform/add")} >
-                Add User
-            </button>
-            <a className="btn btn-primary mb-2" target="_blank" onClick={exportToExcel}>
-                Export to Excel
-            </a>
-            </div>
-            <div className="table-responsive">
-
-            <table>
-                <thead>
-                    <tr>
-                        {headerJSON.map((headerName, index) => (
-                            <th key={index}>{headerName}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {users && users.length > 0 &&
-                        users.map((user, index) => (
-                            <tr key={user.recordId}>
-                                <td>{index + 1}</td>
-                                <td>{user.rrn}</td>
-                                <td>{user.qtr}</td>
-                                <td>{user.year}</td>
-                                <td>{user.zone}</td>
-                                <td>{user.branch}</td>
-                                <td>{user.nameAddress}</td>
-                                <td>{user.bhashaiKshetra}</td>
-                                <td>{user.stdCode}</td>
-                                <td>{user.phoneNo}</td>
-                                <td>{user.email}</td>
-                                <td>{user.noTotal}</td>
-                                <td>{user.noTotalSecond}</td>
-                                <td>{user.englishPaper}</td>
-                                <td>{user.totalHindiIssuedNumber}</td>
-                                <td>{user.hindiPaper}</td>
-                                <td>{user.hindiAns}</td>
-                                <td>{user.engAns}</td>
-                                <td>{user.notAns}</td>
-                                <td>{user.countFromA}</td>
-                                <td>{user.hindiAnsA}</td>
-                                <td>{user.engAnsA}</td>
-                                <td>{user.notAnsA}</td>
-                                <td>{user.countFromB}</td>
-                                <td>{user.hindiAnsB}</td>
-                                <td>{user.engAnsB}</td>
-                                <td>{user.notAnsB}</td>
-                                <td>{user.hindiFromA}</td>
-                                <td>{user.engFromA}</td>
-                                <td>{user.totalFromA}</td>
-                                <td>{user.hindiFromB}</td>
-                                <td>{user.engFromB}</td>
-                                <td>{user.totalFromB}</td>
-                                <td>{user.hindiFromC}</td>
-                                <td>{user.engFromC}</td>
-                                <td>{user.totalFromC}</td>
-                                <td>{user.hindiComment}</td>
-                                <td>{user.engComment}</td>
-                                <td>{user.totalComment}</td>
-                                <td>{user.labCount}</td>
-                                <td>{user.officers}</td>
-                                <td>{user.workers}</td>
-                                <td>{user.dateRajbhasha}</td>
-                                <td>{user.commeteeNum}</td>
-                                <td>{user.meetingCountDuringCurrentQtr}</td>
-                                <td>{user.hindiIssued}</td>
-                                <td>{user.passbookA}</td>
-                                <td>{user.hindiLoan}</td>
-                                <td>{user.allFormsDualLanguage}</td>
-                                <td>{user.mainTask}</td>
-                                <td>{user.signature}</td>
-                                <td>{user.memberName}</td>
-                                <td>{user.designation}</td>
-                                <td>{user.stdCode_}</td>
-                                <td>{user.faxNumber}</td>
-                                <td>{user.emailA}</td>
-                                <td>{user.authorName}</td>
-                                <td>{user.createdOn}</td>
-
-                                <td>
-                                    <button
-                                    size="sm"
-                                        onClick={() =>
-                                            navigate(
-                                                `/roiform/view/${user.recordId}`
-                                            )
-                                        }
-                                        className="btn"
+                    <div>
+                        <form onSubmit={handleSubmit}>
+                            <div className="row mb-3">
+                                <div className="form-group col-md-4">
+                                    <label>
+                                        अंचल{" "}
+                                        <span style={{ color: "red" }}>*</span>
+                                    </label>
+                                    <select
+                                        className="form-control"
+                                        name="zone"
+                                        value={form.zone || ""}
+                                        onChange={handleChange}
+                                        required
                                     >
-                                        View
+                                        <option value="">
+                                            Choose an Option
+                                        </option>
+                                        {filterOptions.map((opt, i) => (
+                                            <option key={i} value={opt.trim()}>
+                                                {opt}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-group col-md-4">
+                                    <label>
+                                        अंचल{" "}
+                                        <span style={{ color: "red" }}>*</span>
+                                    </label>
+                                    <select
+                                        className="form-control"
+                                        name="zone"
+                                        value={form.zone || ""}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="">
+                                            Choose an Option
+                                        </option>
+                                        {filterOptions.map((opt, i) => (
+                                            <option key={i} value={opt.trim()}>
+                                                {opt}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="button-group mt-3 col-md-4">
+                                    <button
+                                        className="btn btn-primary"
+                                        type="submit"
+                                    >
+                                        {"Search"}
                                     </button>
                                     <button
-                                    size="sm"
-                                        onClick={() =>
-                                            navigate(
-                                                `/roiform/edit/${user.recordId}`
-                                            )
-                                        }
-                                        className="btn"
+                                        className="btn btn-secondary"
+                                        type="button"
+                                        onClick={clearAllData}
                                     >
-                                        Edit
+                                        Cancel
                                     </button>
-                                    {/* {deleteShow && ( */}
-                                    <button
-                                    size="sm"
-                                        onClick={() => handleDelete(user)}
-                                        className="btn"
-                                    >
-                                        Delete
-                                    </button>
-                                    {/* // )} */}
-                                </td>
-                            </tr>
-                        ))}
-                </tbody>
-            </table>
-            </div>
-            </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div className="d-flex justify-content-end">
+                            <button
+                                className="btn btn-primary mx-2 mb-2"
+                                onClick={() => navigate("/roiform/add")}
+                            >
+                                Add User
+                            </button>
+                            <a
+                                className="btn btn-primary mb-2"
+                                target="_blank"
+                                onClick={exportToExcel}
+                            >
+                                Export to Excel
+                            </a>
+                        </div>
+
+                        {/* <button
+                            onClick={() => navigate("/roiform/add")}
+                            className="btn"
+                        >
+                            Add User
+                        </button>
+                        <a
+                            target="_blank"
+                            onClick={exportToExcel}
+                            className="btn"
+                        >
+                            Export to Excel
+                        </a> */}
+                    </div>
+                    <div className="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    {headerJSON.map((headerName, index) => (
+                                        <th key={index}>{headerName}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {users &&
+                                    users.length > 0 &&
+                                    users.map((user, index) => (
+                                        <tr key={user.recordId}>
+                                            <td>{index + 1}</td>
+                                            <td>{user.rrn}</td>
+                                            <td>{user.qtr}</td>
+                                            <td>{user.year}</td>
+                                            <td>{user.zone}</td>
+                                            <td>{user.branch}</td>
+                                            <td>{user.nameAddress}</td>
+                                            <td>{user.bhashaiKshetra}</td>
+                                            <td>{user.stdCode}</td>
+                                            <td>{user.phoneNo}</td>
+                                            <td>{user.email}</td>
+                                            <td>{user.noTotal}</td>
+                                            <td>{user.noTotalSecond}</td>
+                                            <td>{user.englishPaper}</td>
+                                            <td>
+                                                {user.totalHindiIssuedNumber}
+                                            </td>
+                                            <td>{user.hindiPaper}</td>
+                                            <td>{user.hindiAns}</td>
+                                            <td>{user.engAns}</td>
+                                            <td>{user.notAns}</td>
+                                            <td>{user.countFromA}</td>
+                                            <td>{user.hindiAnsA}</td>
+                                            <td>{user.engAnsA}</td>
+                                            <td>{user.notAnsA}</td>
+                                            <td>{user.countFromB}</td>
+                                            <td>{user.hindiAnsB}</td>
+                                            <td>{user.engAnsB}</td>
+                                            <td>{user.notAnsB}</td>
+                                            <td>{user.hindiFromA}</td>
+                                            <td>{user.engFromA}</td>
+                                            <td>{user.totalFromA}</td>
+                                            <td>{user.hindiFromB}</td>
+                                            <td>{user.engFromB}</td>
+                                            <td>{user.totalFromB}</td>
+                                            <td>{user.hindiFromC}</td>
+                                            <td>{user.engFromC}</td>
+                                            <td>{user.totalFromC}</td>
+                                            <td>{user.hindiComment}</td>
+                                            <td>{user.engComment}</td>
+                                            <td>{user.totalComment}</td>
+                                            <td>{user.labCount}</td>
+                                            <td>{user.officers}</td>
+                                            <td>{user.workers}</td>
+                                            <td>{user.dateRajbhasha}</td>
+                                            <td>{user.commeteeNum}</td>
+                                            <td>
+                                                {
+                                                    user.meetingCountDuringCurrentQtr
+                                                }
+                                            </td>
+                                            <td>{user.hindiIssued}</td>
+                                            <td>{user.passbookA}</td>
+                                            <td>{user.hindiLoan}</td>
+                                            <td>{user.allFormsDualLanguage}</td>
+                                            <td>{user.mainTask}</td>
+                                            <td>{user.signature}</td>
+                                            <td>{user.memberName}</td>
+                                            <td>{user.designation}</td>
+                                            <td>{user.stdCode_}</td>
+                                            <td>{user.faxNumber}</td>
+                                            <td>{user.emailA}</td>
+                                            <td>{user.authorName}</td>
+                                            <td>{user.createdOn}</td>
+
+                                            <td>
+                                                <button
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        navigate(
+                                                            `/roiform/view/${user.recordId}`
+                                                        )
+                                                    }
+                                                    className="btn"
+                                                >
+                                                    View
+                                                </button>
+                                                <button
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        navigate(
+                                                            `/roiform/edit/${user.recordId}`
+                                                        )
+                                                    }
+                                                    className="btn"
+                                                >
+                                                    Edit
+                                                </button>
+                                                {/* {deleteShow && ( */}
+                                                <button
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleDelete(user)
+                                                    }
+                                                    className="btn"
+                                                >
+                                                    Delete
+                                                </button>
+                                                {/* // )} */}
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     );
