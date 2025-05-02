@@ -403,7 +403,7 @@ function TableComponent() {
                     <h2>{formName}</h2>
                     <div>
                         <form>
-                            <div className="row mb-3 container w-100">
+                            <div className="row mb-3">
                                 <div className="form-group col-md-4">
                                     <select
                                         className="form-control"
@@ -442,10 +442,10 @@ function TableComponent() {
                                         }
                                     />
                                 </div>
-                                <div className="button-group mt-3 col-md-4">
+                                <div className="col-md-4">
                                     <button
                                         type="button"
-                                        className="btn btn-primary mr-2"
+                                        className="btn btn-primary mx-2"
                                         onClick={handleSearch}
                                     >
                                         Search
@@ -461,15 +461,15 @@ function TableComponent() {
                             </div>
                         </form>
 
-                        <div className="d-flex justify-content-end">
-                            {/* {hasAddRight && ( */}
-                            <button
-                                className="btn btn-primary mx-2 mb-2"
-                                onClick={() => navigate("/boiform/add")}
-                            >
-                                Add New Record
-                            </button>
-                            {/* )} */}
+                        <div className="d-flex justify-content-between">
+                            {hasAddRight && (
+                                <button
+                                    className="btn btn-primary mx-2 mb-2"
+                                    onClick={() => navigate("/boiform/add")}
+                                >
+                                    Add New Record
+                                </button>
+                            )}
                             {hasExportExcel && (
                                 <a
                                     className="btn btn-primary mb-2"
@@ -482,19 +482,30 @@ function TableComponent() {
                         </div>
                     </div>
                     <div className="table-responsive">
-                        <table>
-                            <thead>
+                        <table className="table-list table table-bordered">
+                            {/* <thead>
                                 <tr>
                                     {headerJSON.map((headerName, index) => (
                                         <th key={index}>{headerName}</th>
                                     ))}
                                 </tr>
-                            </thead>
+                            </thead> */}
+
                             <tbody>
+                                <tr>
+                                    {headerJSON.map((headerName, index) => (
+                                        <th key={index}>{headerName}</th>
+                                    ))}
+                                </tr>
                                 {users && users.length > 0 ? (
                                     users.map((user, index) => (
                                         <tr key={user.recordId}>
-                                            <td>{index + 1}</td>
+                                            <td>
+                                                {(filterParams.pageNumber - 1) *
+                                                    filterParams.pageSize +
+                                                    index +
+                                                    1}
+                                            </td>
                                             <td>{user.rrn}</td>
                                             <td>{user.qtr}</td>
                                             <td>{user.year}</td>
