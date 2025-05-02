@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const API_URL = "http://192.168.60.60:8080/o/hindi";
+const API_URL_COMMON = "http://192.168.60.60:8080/";
 // const API_URL = "http://192.168.60.60:8080/o/student";
 // const API_URL = "http://192.168.60.60:8080/o/hindi";
 const headers = {};
 
 // const API_URL = '/o/student';
+// const API_URL_COMMON = "/";
 // const csrfToken = window?.Liferay?.authToken || "";
 // const headers = {
 //     "Content-Type": "application/json",
@@ -85,6 +87,7 @@ function TableComponent() {
     });
     const [totalCount, setTotalCount] = useState(0);
     const [orgOptions, setOrgOptions] = useState([]);
+    const [itemFieldDetailList, setItemFieldDetailList] = useState([]);
     const [hasAddRight, setHasAddRight] = useState(false);
     const [hasEditRight, sethasEditRight] = useState(false);
     const [hasDeleteRight, setHasDeleteRight] = useState(false);
@@ -230,19 +233,27 @@ function TableComponent() {
         });
 
         ///Search data option api
+
+        // /commonApi/formId/4262148
         axios
-            .get(`http://192.168.60.60:8080/o/commonApi/hindiZone`, {
+            .get(`${API_URL_COMMON}o/commonApi/formId/4262148`, {
                 headers,
                 responseType: "json",
             })
             .then((res) => {
-                const zones = res.data || [];
-                const zoneList = zones
-                    .filter((item) => item.zoneInHindi)
-                    .map((item) => item.zoneInHindi.trim());
-
-                console.log("Parsed Hindi Zones:", zoneList);
-                setOrgOptions(zoneList);
+                const formFieldDetail = res.data || [];
+                const itemFieldDetailList = formFieldDetail.map((item) => {
+                    return {
+                        id: item.id,
+                        formId: item.formId,
+                        formName: item.formName,
+                        columnKey: item.columnKey,
+                        columnName: item.columnName,
+                        sequence: item.sequence,
+                    };
+                });
+                setItemFieldDetailList(itemFieldDetailList);
+                console.log("Parsed Hindi Zones:", itemFieldDetailList);
             })
             .catch((err) => console.error("Zone Fetch Error:", err));
 
@@ -346,11 +357,12 @@ function TableComponent() {
     };
 
     const handleSearch = () => {
+        console.log("asdfasdfasdf", filterOptions);
         const updatedParams = {
-            ...filterParams,
             columnName: filterOptions.columnName,
             columnValue: filterOptions.columnValue,
             pageNumber: 1,
+            pageSize: 10,
         };
         setFilterParams(updatedParams);
 
@@ -390,79 +402,56 @@ function TableComponent() {
                 <div className="col-12">
                     <h2>{formName}</h2>
                     <div>
-                        <form onSubmit={handleSubmit}>
+                        <form>
                             <div className="row mb-3 container w-100">
                                 <div className="form-group col-md-4">
-                                    {/* <label>
-                                        अंचल{" "}
-                                        <span style={{ color: "red" }}>*</span>
-                                    </label> */}
-                                    {/* <select
-                                        className="form-control"
-                                        name="zone"
-                                        value={filterOptions.columnName || ""}
-                                        onChange={handleChange}
-                                        // aria-placeholder="Search By"
-                                    >
-                                     <option value="">Search By</option>
-        {orgOptions.map((opt, i) => (
-    <option key={i} value={opt.trim()}>{opt}</option>
-        ))}
-      </select> */}
                                     <select
                                         className="form-control"
-                                        name="columnValue"
-                                        value={
-                                            filterOptions.columnName === "zone"
-                                                ? filterOptions.columnValue
-                                                : ""
+                                        name="columnName"
+                                        value={filterOptions.columnName}
+                                        onChange={(e) =>
+                                            setFilterOptions((prev) => ({
+                                                ...prev,
+                                                columnName: e.target.value,
+                                            }))
                                         }
-                                        onChange={(e) => {
-                                            setFilterOptions({
-                                                columnName: "zone",
-                                                columnValue: e.target.value,
-                                            });
-                                        }}
                                     >
                                         <option value="">Search By Zone</option>
-                                        {orgOptions.map((opt, i) => (
-                                            <option key={i} value={opt.trim()}>
-                                                {opt}
+                                        {itemFieldDetailList.map((opt, i) => (
+                                            <option
+                                                key={i}
+                                                value={opt.columnKey}
+                                            >
+                                                {opt.columnName}
                                             </option>
                                         ))}
                                     </select>
                                 </div>
                                 <div className="form-group col-md-4">
-                                    {/* <label>
-                                        अंचल{" "}
-                                        <span style={{ color: "red" }}>*</span>
-                                    </label> */}
                                     <input
                                         type="text"
                                         className="form-control"
                                         name="columnValue"
-                                        value={
-                                            filterOptions.columnName !== "zone"
-                                                ? filterOptions.columnValue
-                                                : ""
-                                        }
-                                        placeholder="Search by STD Code"
+                                        value={filterOptions.columnValue}
+                                        placeholder="Search by.."
                                         onChange={(e) =>
-                                            setFilterOptions({
-                                                columnName: "stdCode_",
+                                            setFilterOptions((prev) => ({
+                                                ...prev,
                                                 columnValue: e.target.value,
-                                            })
+                                            }))
                                         }
                                     />
                                 </div>
                                 <div className="button-group mt-3 col-md-4">
                                     <button
+                                        type="button"
                                         className="btn btn-primary mr-2"
                                         onClick={handleSearch}
                                     >
                                         Search
                                     </button>
                                     <button
+                                        type="button"
                                         className="btn btn-secondary"
                                         onClick={handleClear}
                                     >
