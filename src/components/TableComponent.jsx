@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import * as XLSX from "xlsx";
 
 const API_URL = "http://192.168.60.60:8080/o/hindi";
 // const API_URL = "http://192.168.60.60:8080/o/student";
@@ -78,7 +77,6 @@ const headerJSON = [
 ];
 function TableComponent() {
     const [users, setUsers] = useState([]);
-    const [deleteShow, setDeleteShow] = useState(false);
     const navigate = useNavigate();
     // const [filterOptions, setFilterOptions] = useState([]);
     const [filterOptions, setFilterOptions] = useState({
@@ -92,6 +90,7 @@ function TableComponent() {
     const [hasDeleteRight, setHasDeleteRight] = useState(false);
     const [hasViewRight, setHasViewRight] = useState(false);
     const [hasExportExcel, sethasExportExcel] = useState(false);
+    const [formName, setFormName] = useState("");
 
     const [filterParams, setFilterParams] = useState({
         columnName: "rrn_",
@@ -105,6 +104,29 @@ function TableComponent() {
     const [form, setForm] = useState({
         zone: "",
     });
+
+    const getPreviousQuarterLastMonthName = () => {
+        const month = new Date().getMonth(); // 0 = Jan, 11 = Dec
+        const currentQuarter = Math.floor(month / 3); // 0 to 3
+        const previousQuarter = (currentQuarter + 3) % 4; // handles wrap-around to previous year
+        const prevQuarterEndMonthIndex = (previousQuarter + 1) * 3 - 1;
+        const monthNames = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ];
+        return monthNames[prevQuarterEndMonthIndex];
+    };
+
     useEffect(() => {
         axios
             .post(`${API_URL}/records`, filterParams, { headers })
@@ -223,6 +245,13 @@ function TableComponent() {
                 setOrgOptions(zoneList);
             })
             .catch((err) => console.error("Zone Fetch Error:", err));
+
+        const monthName = getPreviousQuarterLastMonthName();
+        const formN =
+            monthName === "March"
+                ? `Hindi QPR Branch ${monthName} Part 1`
+                : `Hindi QPR Branch ${monthName}`;
+        setFormName(formN);
     }, []);
 
     const handleDelete = (user) => {
@@ -359,7 +388,7 @@ function TableComponent() {
         <div className="container-fluid">
             <div className="row">
                 <div className="col-12">
-                    <h2>Tabular Dashboard View</h2>
+                    <h2>{formName}</h2>
                     <div>
                         <form onSubmit={handleSubmit}>
                             <div className="row mb-3 container w-100">
