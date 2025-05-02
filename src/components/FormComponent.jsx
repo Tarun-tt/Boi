@@ -4,8 +4,20 @@ import axios from "axios";
 import "./Hindi.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+// const API_URL = "http://192.168.60.60:8080/o/hindi";
+// const headers = {};
+
 const API_URL = "http://192.168.60.60:8080/o/hindi";
+const API_URL_COMMON = "http://192.168.60.60:8080/";
 const headers = {};
+
+// const API_URL = '/o/hindi';
+// const API_URL_COMMON = "/";
+// const csrfToken = window?.Liferay?.authToken || "";
+// const headers = {
+//     "Content-Type": "application/json",
+//     "x-csrf-token": csrfToken,
+// };
 
 function FormComponent({ mode }) {
     const getPreviousQuarterLastDate = () => {
@@ -136,7 +148,7 @@ function FormComponent({ mode }) {
         // setOrgOptions(['Option 1', 'Option 2']);
         // setBranchOptions(['Branch 1', 'Branch 2']);
         axios
-            .get(`http://192.168.60.60:8080/o/commonApi/hindiZone`, {
+            .get(`${API_URL_COMMON}o/commonApi/hindiZone`, {
                 headers,
                 responseType: "json",
             })
@@ -156,7 +168,7 @@ function FormComponent({ mode }) {
         if (form.zone) {
             axios
                 .post(
-                    `http://192.168.60.60:8080/o/commonApi/branchCode`,
+                    `${API_URL_COMMON}o/commonApi/branchCode`,
                     {
                         zoneInHindi: form.zone,
                     },
@@ -176,7 +188,7 @@ function FormComponent({ mode }) {
                 if (res.data.zone) {
                     axios
                         .post(
-                            `http://192.168.60.60:8080/o/commonApi/branchCode`,
+                            `${API_URL_COMMON}o/commonApi/branchCode`,
                             {
                                 zoneInHindi: res.data.zone,
                             },
@@ -210,7 +222,7 @@ function FormComponent({ mode }) {
             setForm((prev) => ({ ...prev, branch: "" }));
             axios
                 .post(
-                    `http://192.168.60.60:8080/o/commonApi/branchCode`,
+                    `${API_URL_COMMON}o/commonApi/branchCode`,
                     {
                         zoneInHindi: value,
                     },

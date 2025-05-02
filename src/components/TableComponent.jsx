@@ -4,11 +4,9 @@ import axios from "axios";
 
 const API_URL = "http://192.168.60.60:8080/o/hindi";
 const API_URL_COMMON = "http://192.168.60.60:8080/";
-// const API_URL = "http://192.168.60.60:8080/o/student";
-// const API_URL = "http://192.168.60.60:8080/o/hindi";
 const headers = {};
 
-// const API_URL = '/o/student';
+// const API_URL = '/o/hindi';
 // const API_URL_COMMON = "/";
 // const csrfToken = window?.Liferay?.authToken || "";
 // const headers = {
@@ -416,7 +414,7 @@ function TableComponent() {
                                             }))
                                         }
                                     >
-                                        <option value="">Search By Zone</option>
+                                        <option value="">Search By</option>
                                         {itemFieldDetailList.map((opt, i) => (
                                             <option
                                                 key={i}
@@ -447,6 +445,10 @@ function TableComponent() {
                                         type="button"
                                         className="btn btn-primary mx-2"
                                         onClick={handleSearch}
+                                        disabled={
+                                            !filterOptions.columnName ||
+                                            !filterOptions.columnValue
+                                        }
                                     >
                                         Search
                                     </button>
