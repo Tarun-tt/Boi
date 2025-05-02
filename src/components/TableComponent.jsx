@@ -82,6 +82,13 @@ function TableComponent() {
     const navigate = useNavigate();
     const [filterOptions, setFilterOptions] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
+     const [orgOptions, setOrgOptions] = useState([]);
+     const [hasAddRight, setHasAddRight] = useState(false);
+    const [hasEditRight, sethasEditRight] = useState(false);
+    const [hasDeleteRight, setHasDeleteRight] = useState(false);
+    const [hasViewRight, setHasViewRight] = useState(false);
+    const [hasExportExcel, sethasExportExcel] = useState(false);
+
 
     const [filterParams, setFilterParams] = useState({
         columnName: "",
@@ -167,11 +174,40 @@ function TableComponent() {
                 setUsers(mappedUsers);
             });
 
-        // axios.get(`${API_URL}/get-user-all-role`, { headers }).then((res) => {
-        //     const hasRole = res?.data?.includes("Guest");
-        //     // const hasRole = res?.data?.includes("HOADMIN");
-        //     setDeleteShow(hasRole);
-        // });
+            axios.get(`${API_URL}/get-user-all-role`, { headers }).then((res) => {
+                if (res?.data?.includes("HO_ADMIN_HINDI_BRANCH_P1")) {
+                    setHasAddRight(true);
+                    sethasEditRight(true);
+                    setHasDeleteRight(true);
+                    setHasViewRight(true);
+                    sethasExportExcel(true);
+                } else if (res?.data?.includes("ZONE_ADMIN_HINDI_BRANCH_P1")) {
+                    setHasAddRight(true);
+                    sethasEditRight(true);
+                    setHasDeleteRight(false);
+                    setHasViewRight(true);
+                    sethasExportExcel(true);
+                } else if (res?.data?.includes("USER")) {
+                    setHasAddRight(true);
+                    sethasEditRight(true);
+                    setHasDeleteRight(false);
+                    setHasViewRight(true);
+                    sethasExportExcel(true);
+                }
+            });
+
+            ///Search data option api
+        axios.get(`http://192.168.60.60:8080/o/commonApi/hindiZone`, { headers,responseType: 'json' })
+        .then((res) => {
+          const zones = res.data || [];
+          const zoneList = zones
+            .filter(item => item.zoneInHindi)
+            .map(item => item.zoneInHindi.trim());
+        
+          console.log("Parsed Hindi Zones:", zoneList);
+          setOrgOptions(zoneList);
+        })
+        .catch((err) => console.error('Zone Fetch Error:', err));
     }, []);
 
     const handleDelete = (user) => {
@@ -189,11 +225,11 @@ function TableComponent() {
     const exportToExcel = async () => {
         try {
             const postData = {
-                columnName: "",
-                columnValue: "",
+                columnName: filterOptions.columnName,
+                columnValue: filterOptions.columnValue
             };
             const response = await axios.post(
-                "http://192.168.60.60:8080/o/hindi/download",
+                `${API_URL}/download`,
                 postData,
                 {
                     responseType: "blob",
@@ -212,95 +248,75 @@ function TableComponent() {
         }
     };
 
+    
+
     const handleSubmit = (e) => {
         // e.preventDefault();
         // if (mode === "edit" && id) {
         //     axios
         //         .put(`${API_URL}/${id}`, form, { headers })
-        //         .then(() => navigate("/roiform"))
+        //         .then(() => navigate("/boiform"))
         //         .catch((err) => console.error("Update Error:", err));
         // } else {
         //     axios
         //         .post(`${API_URL}/add`, form, { headers })
-        //         .then(() => navigate("/roiform"))
+        //         .then(() => navigate("/boiform"))
         //         .catch((err) => console.error("Add Error:", err));
         // }
     };
 
-    const handleChange = () => {
-        console.log("asdfasdf");
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFilterParams((prev) => ({
+            ...prev,
+            columnName: name === "zone" ? "zone" : prev.columnName,
+            columnValue: name === "zone" ? value : prev.columnValue,
+        }));
     };
+    
     const clearAllData = () => {
         console.log("asdfasdf");
     };
+    
 
     return (
         <div className="container-fluid">
             <div className="row">
                 <div className="col-12">
                     <h2>Tabular Dashboard View</h2>
-                    {/* <div className="d-flex justify-content-end">
-                        <button
-                            className="btn btn-primary mx-2 mb-2"
-                            onClick={() => navigate("/roiform/add")}
-                        >
-                            Add User
-                        </button>
-                        <a
-                            className="btn btn-primary mb-2"
-                            target="_blank"
-                            onClick={exportToExcel}
-                        >
-                            Export to Excel
-                        </a>
-                    </div> */}
-
                     <div>
                         <form onSubmit={handleSubmit}>
-                            <div className="row mb-3">
+                            <div className="row mb-3 container w-100">
                                 <div className="form-group col-md-4">
-                                    <label>
+                                    {/* <label>
                                         अंचल{" "}
                                         <span style={{ color: "red" }}>*</span>
-                                    </label>
+                                    </label> */}
                                     <select
                                         className="form-control"
                                         name="zone"
-                                        value={form.zone || ""}
+                                        value={filterOptions.columnName || ""}
                                         onChange={handleChange}
-                                        required
+                                        // aria-placeholder="Search By"
                                     >
-                                        <option value="">
-                                            Choose an Option
-                                        </option>
-                                        {filterOptions.map((opt, i) => (
-                                            <option key={i} value={opt.trim()}>
-                                                {opt}
-                                            </option>
-                                        ))}
-                                    </select>
+                                     <option value="">Search By</option>
+        {orgOptions.map((opt, i) => (
+    <option key={i} value={opt.trim()}>{opt}</option>
+        ))}
+      </select>
                                 </div>
                                 <div className="form-group col-md-4">
-                                    <label>
+                                    {/* <label>
                                         अंचल{" "}
                                         <span style={{ color: "red" }}>*</span>
-                                    </label>
-                                    <select
-                                        className="form-control"
-                                        name="zone"
-                                        value={form.zone || ""}
-                                        onChange={handleChange}
-                                        required
-                                    >
-                                        <option value="">
-                                            Choose an Option
-                                        </option>
-                                        {filterOptions.map((opt, i) => (
-                                            <option key={i} value={opt.trim()}>
-                                                {opt}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    </label> */}
+                                    <input
+      type="text"
+      className="form-control"
+      name="stdCode_"
+      value={filterOptions.columnValue}
+      onChange={handleChange}
+    />
                                 </div>
                                 <div className="button-group mt-3 col-md-4">
                                     <button
@@ -321,34 +337,20 @@ function TableComponent() {
                         </form>
 
                         <div className="d-flex justify-content-end">
-                            <button
+                    {hasAddRight &&        <button
                                 className="btn btn-primary mx-2 mb-2"
-                                onClick={() => navigate("/roiform/add")}
+                                onClick={() => navigate("/boiform/add")}
                             >
                                 Add User
-                            </button>
-                            <a
+                            </button>}
+                     {hasExportExcel &&      <a
                                 className="btn btn-primary mb-2"
                                 target="_blank"
                                 onClick={exportToExcel}
                             >
                                 Export to Excel
-                            </a>
+                            </a>}
                         </div>
-
-                        {/* <button
-                            onClick={() => navigate("/roiform/add")}
-                            className="btn"
-                        >
-                            Add User
-                        </button>
-                        <a
-                            target="_blank"
-                            onClick={exportToExcel}
-                            className="btn"
-                        >
-                            Export to Excel
-                        </a> */}
                     </div>
                     <div className="table-responsive">
                         <table>
@@ -361,7 +363,7 @@ function TableComponent() {
                             </thead>
                             <tbody>
                                 {users &&
-                                    users.length > 0 &&
+                                    users.length > 0 ? (
                                     users.map((user, index) => (
                                         <tr key={user.recordId}>
                                             <td>{index + 1}</td>
@@ -430,43 +432,41 @@ function TableComponent() {
                                             <td>{user.createdOn}</td>
 
                                             <td>
-                                                <button
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/roiform/view/${user.recordId}`
-                                                        )
-                                                    }
-                                                    className="btn"
-                                                >
-                                                    View
-                                                </button>
-                                                <button
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/roiform/edit/${user.recordId}`
-                                                        )
-                                                    }
-                                                    className="btn"
-                                                >
-                                                    Edit
-                                                </button>
-                                                {/* {deleteShow && ( */}
-                                                <button
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleDelete(user)
-                                                    }
-                                                    className="btn"
-                                                >
-                                                    Delete
-                                                </button>
-                                                {/* // )} */}
-                                            </td>
-                                        </tr>
-                                    ))}
-                            </tbody>
+                                                
+               {hasViewRight &&     <button
+                        size="sm"
+                        onClick={() => navigate(`/boiform/view/${user.recordId}`)}
+                        className="btn"
+                    >
+                        View
+                    </button>}
+                {hasEditRight  &&    <button
+                        size="sm"
+                        onClick={() => navigate(`/boiform/edit/${user.recordId}`)}
+                        className="btn"
+                    >
+                        Edit
+                    </button>}
+                 {hasDeleteRight &&   <button
+                        size="sm"
+                        onClick={() => handleDelete(user)}
+                        className="btn"
+                    >
+                        Delete
+                    </button>}
+                </td>
+            </tr>
+            
+        ))
+        
+    ) : (
+        <tr>
+            <td colSpan="59" style={{ textAlign: 'center' }}>
+                No data found
+            </td>
+        </tr>
+    )}
+</tbody>
                         </table>
                     </div>
                 </div>
