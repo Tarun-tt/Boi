@@ -135,7 +135,7 @@ function TableComponent() {
             .post(`${API_URL}/records`, filterParams, { headers })
             .then((res) => {
                 console.log("resresresresresresresres", res);
-                setTotalCount(res?.data?.count);
+                setTotalCount(res?.data?.totalCount);
                 setCurrentPage(res?.data?.pageNumber || 1);
                 setFilterParams((prev) => ({
                     ...prev,
@@ -348,7 +348,7 @@ function TableComponent() {
         axios
             .post(`${API_URL}/records`, resetParams, { headers })
             .then((res) => {
-                setTotalCount(res?.data?.count);
+                setTotalCount(res?.data?.totalCount);
                 const mappedUsers = res?.data?.data.map((user) => ({
                     ...user,
                 }));
@@ -369,7 +369,7 @@ function TableComponent() {
         axios
             .post(`${API_URL}/records`, updatedParams, { headers })
             .then((res) => {
-                setTotalCount(res?.data?.count);
+                setTotalCount(res?.data?.totalCount);
                 const mappedUsers = res?.data?.data.map((user) => ({
                     ...user, // map as you already do
                 }));
@@ -388,7 +388,7 @@ function TableComponent() {
             .post(`${API_URL}/records`, updatedParams, { headers })
             .then((res) => {
                 setUsers(res?.data?.data || []);
-                setTotalCount(res?.data?.count || 0);
+                setTotalCount(res?.data?.totalCount || 0);
                 setCurrentPage(page);
             })
             .catch((err) => {
