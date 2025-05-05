@@ -4,9 +4,6 @@ import axios from "axios";
 import "./Hindi.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-// const API_URL = "http://192.168.60.60:8080/o/hindi";
-// const headers = {};
-
 const API_URL = "http://192.168.60.60:8080/o/hindi";
 const API_URL_COMMON = "http://192.168.60.60:8080/";
 const headers = {};
@@ -261,6 +258,15 @@ function FormComponent({ mode }) {
         request
             .then(() => navigate("/boiform"))
             .catch((err) => {
+                if (err && err.status === 409) {
+                    const duplicateRRN = err?.response?.data
+                        .split("Duplicate entry ")[1]
+                        .split(" for key ")[0];
+                    const msg = `Data already present please edit the existing records if you have rights ${duplicateRRN}`;
+                    const confirmRoute = window.confirm(msg);
+                    if (!confirmRoute) return;
+                    navigate("/boiform");
+                }
                 console.error("Submit Error:", err);
             })
             .finally(() => {

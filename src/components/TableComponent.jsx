@@ -457,7 +457,7 @@ function TableComponent() {
                                         className="btn btn-secondary"
                                         onClick={handleClear}
                                     >
-                                        Cancel
+                                        Clear
                                     </button>
                                 </div>
                             </div>
