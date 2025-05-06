@@ -259,11 +259,11 @@ function FormComponent({ mode }) {
             .then(() => navigate("/hindi-qpr-branch-1"))
             .catch((err) => {
                 if (err && err.status === 409) {
-                    const duplicateRRN = err?.response?.data
-                        .split("Duplicate entry ")[1]
-                        .split(" for key ")[0];
-                    const msg = `Data already present please edit the existing records if you have rights ${duplicateRRN}`;
-                    const confirmRoute = window.confirm(msg);
+                    const duplicateRRN = err?.response?.data;
+                    // .split("Duplicate entry ")[1]
+                    // .split(" for key ")[0];
+                    // const msg = `Data already present please edit the existing records if you have rights ${duplicateRRN}`;
+                    const confirmRoute = window.confirm(duplicateRRN);
                     if (!confirmRoute) return;
                     navigate("/hindi-qpr-branch-1");
                 }

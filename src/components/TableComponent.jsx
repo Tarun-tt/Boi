@@ -80,12 +80,12 @@ function TableComponent() {
     const [users, setUsers] = useState([]);
     const navigate = useNavigate();
     const [filterOptions, setFilterOptions] = useState({
-        columnName: "",
+        columnName: "rrn_",
         columnValue: "",
     });
     const [totalCount, setTotalCount] = useState(0);
     const [itemFieldDetailList, setItemFieldDetailList] = useState([]);
-    const [hasAddRight, setHasAddRight] = useState(false);
+    const [hasAddRight, setHasAddRight] = useState(true);
     const [hasEditRight, sethasEditRight] = useState(false);
     const [hasDeleteRight, setHasDeleteRight] = useState(false);
     const [hasViewRight, setHasViewRight] = useState(false);
@@ -272,7 +272,7 @@ function TableComponent() {
     const exportToExcel = async () => {
         try {
             const postData = {
-                columnName: filterOptions.columnName,
+                columnName: filterOptions.columnName ?? "rrn_",
                 columnValue: filterOptions.columnValue,
             };
             const response = await axios.post(`${API_URL}/download`, postData, {
@@ -328,7 +328,7 @@ function TableComponent() {
     const handleSearch = () => {
         console.log("asdfasdfasdf", filterOptions);
         const updatedParams = {
-            columnName: filterOptions.columnName,
+            columnName: filterOptions.columnName ?? "rrn_",
             columnValue: filterOptions.columnValue,
             pageNumber: 1,
             pageSize: 10,
