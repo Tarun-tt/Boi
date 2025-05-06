@@ -6,7 +6,7 @@ const API_URL = "http://192.168.60.60:8080/o/hindi";
 const API_URL_COMMON = "http://192.168.60.60:8080/";
 const headers = {};
 
-// const API_URL = '/o/hindi';
+// const API_URL = "/o/hindi";
 // const API_URL_COMMON = "/";
 // const csrfToken = window?.Liferay?.authToken || "";
 // const headers = {
@@ -75,16 +75,15 @@ const headerJSON = [
     "Created On",
     "Actions",
 ];
+
 function TableComponent() {
     const [users, setUsers] = useState([]);
     const navigate = useNavigate();
-    // const [filterOptions, setFilterOptions] = useState([]);
     const [filterOptions, setFilterOptions] = useState({
         columnName: "",
         columnValue: "",
     });
     const [totalCount, setTotalCount] = useState(0);
-    const [orgOptions, setOrgOptions] = useState([]);
     const [itemFieldDetailList, setItemFieldDetailList] = useState([]);
     const [hasAddRight, setHasAddRight] = useState(false);
     const [hasEditRight, sethasEditRight] = useState(false);
@@ -99,12 +98,7 @@ function TableComponent() {
         pageNumber: 1,
         pageSize: 10,
     });
-    // const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-
-    const [form, setForm] = useState({
-        zone: "",
-    });
 
     const getPreviousQuarterLastMonthName = () => {
         const month = new Date().getMonth(); // 0 = Jan, 11 = Dec
@@ -297,29 +291,6 @@ function TableComponent() {
         }
     };
 
-    const handleSubmit = (e) => {
-        // e.preventDefault();
-        // if (mode === "edit" && id) {
-        //     axios
-        //         .put(`${API_URL}/${id}`, form, { headers })
-        //         .then(() => navigate("/boiform"))
-        //         .catch((err) => console.error("Update Error:", err));
-        // } else {
-        //     axios
-        //         .post(`${API_URL}/add`, form, { headers })
-        //         .then(() => navigate("/boiform"))
-        //         .catch((err) => console.error("Add Error:", err));
-        // }
-    };
-
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFilterParams((prev) => ({
-    //         ...prev,
-    //         columnName: name === "zone" ? "zone" : prev.columnName,
-    //         columnValue: name === "zone" ? value : prev.columnValue,
-    //     }));
-    // };
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFilterOptions((prev) => ({
@@ -389,9 +360,41 @@ function TableComponent() {
                 setTotalCount(res?.data?.totalCount || 0);
                 setCurrentPage(page);
             })
+
             .catch((err) => {
                 console.error("Error fetching data for page:", err);
             });
+    };
+
+    const getPaginationRange = (currentPage, totalPages) => {
+        const delta = 2;
+        const range = [];
+        const rangeWithDots = [];
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - delta && i <= currentPage + delta)
+            ) {
+                range.push(i);
+            }
+        }
+
+        let prev;
+        for (let i of range) {
+            if (prev) {
+                if (i - prev === 2) {
+                    rangeWithDots.push(prev + 1);
+                } else if (i - prev > 2) {
+                    rangeWithDots.push("...");
+                }
+            }
+            rangeWithDots.push(i);
+            prev = i;
+        }
+
+        return rangeWithDots;
     };
 
     return (
@@ -467,12 +470,14 @@ function TableComponent() {
                             {hasAddRight && (
                                 <button
                                     className="btn btn-primary mx-2 mb-2"
-                                    onClick={() => navigate("/boiform/add")}
+                                    onClick={() =>
+                                        navigate("/hindi-qpr-branch-1/add")
+                                    }
                                 >
                                     Add New Record
                                 </button>
                             )}
-                            {hasExportExcel && (
+                            {hasExportExcel && users.length && (
                                 <a
                                     className="btn btn-primary mb-2"
                                     target="_blank"
@@ -485,14 +490,6 @@ function TableComponent() {
                     </div>
                     <div className="table-responsive">
                         <table className="table-list table table-bordered">
-                            {/* <thead>
-                                <tr>
-                                    {headerJSON.map((headerName, index) => (
-                                        <th key={index}>{headerName}</th>
-                                    ))}
-                                </tr>
-                            </thead> */}
-
                             <tbody>
                                 <tr>
                                     {headerJSON.map((headerName, index) => (
@@ -573,43 +570,48 @@ function TableComponent() {
                                             <td>{user.createdOn}</td>
 
                                             <td>
-                                                {hasViewRight && (
-                                                    <button
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            navigate(
-                                                                `/boiform/view/${user.recordId}`
-                                                            )
-                                                        }
-                                                        className="btn"
-                                                    >
-                                                        View
-                                                    </button>
-                                                )}
-                                                {hasEditRight && (
-                                                    <button
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            navigate(
-                                                                `/boiform/edit/${user.recordId}`
-                                                            )
-                                                        }
-                                                        className="btn"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                )}
-                                                {hasDeleteRight && (
-                                                    <button
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            handleDelete(user)
-                                                        }
-                                                        className="btn"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                )}
+                                                {hasViewRight &&
+                                                    users.length && (
+                                                        <button
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    `/hindi-qpr-branch-1/view/${user.recordId}`
+                                                                )
+                                                            }
+                                                            className="btn"
+                                                        >
+                                                            View
+                                                        </button>
+                                                    )}
+                                                {hasEditRight &&
+                                                    users.length && (
+                                                        <button
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    `/hindi-qpr-branch-1/edit/${user.recordId}`
+                                                                )
+                                                            }
+                                                            className="btn"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                    )}
+                                                {hasDeleteRight &&
+                                                    users.length && (
+                                                        <button
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    user
+                                                                )
+                                                            }
+                                                            className="btn"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    )}
                                             </td>
                                         </tr>
                                     ))
@@ -629,33 +631,91 @@ function TableComponent() {
                 </div>
             </div>
 
-            <div className="d-flex justify-content-end align-items-center mt-3">
-                <nav>
-                    <ul className="pagination">
-                        {Array.from({
-                            length: Math.ceil(
-                                totalCount / filterParams.pageSize
-                            ),
-                        }).map((_, index) => (
+            {totalCount > 10 && (
+                <div className="d-flex justify-content-end align-items-center mt-3">
+                    <nav>
+                        <ul className="pagination">
+                            {/* Previous button */}
                             <li
-                                key={index}
                                 className={`page-item ${
-                                    filterParams.pageNumber === index + 1
-                                        ? "active"
+                                    filterParams.pageNumber === 1
+                                        ? "disabled"
                                         : ""
                                 }`}
                             >
                                 <button
                                     className="page-link"
-                                    onClick={() => handlePageChange(index + 1)}
+                                    onClick={() =>
+                                        handlePageChange(
+                                            filterParams.pageNumber - 1
+                                        )
+                                    }
+                                    disabled={filterParams.pageNumber === 1}
                                 >
-                                    {index + 1}
+                                    Previous
                                 </button>
                             </li>
-                        ))}
-                    </ul>
-                </nav>
-            </div>
+
+                            {/* Page numbers with ellipses */}
+                            {getPaginationRange(
+                                filterParams.pageNumber,
+                                Math.ceil(totalCount / filterParams.pageSize)
+                            ).map((page, index) => (
+                                <li
+                                    key={index}
+                                    className={`page-item ${
+                                        filterParams.pageNumber === page
+                                            ? "active"
+                                            : ""
+                                    } ${page === "..." ? "disabled" : ""}`}
+                                >
+                                    {page === "..." ? (
+                                        <span className="page-link">...</span>
+                                    ) : (
+                                        <button
+                                            className="page-link"
+                                            onClick={() =>
+                                                handlePageChange(page)
+                                            }
+                                        >
+                                            {page}
+                                        </button>
+                                    )}
+                                </li>
+                            ))}
+
+                            {/* Next button */}
+                            <li
+                                className={`page-item ${
+                                    filterParams.pageNumber ===
+                                    Math.ceil(
+                                        totalCount / filterParams.pageSize
+                                    )
+                                        ? "disabled"
+                                        : ""
+                                }`}
+                            >
+                                <button
+                                    className="page-link"
+                                    onClick={() =>
+                                        handlePageChange(
+                                            filterParams.pageNumber + 1
+                                        )
+                                    }
+                                    disabled={
+                                        filterParams.pageNumber ===
+                                        Math.ceil(
+                                            totalCount / filterParams.pageSize
+                                        )
+                                    }
+                                >
+                                    Next
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            )}
         </div>
     );
 }

@@ -8,7 +8,7 @@ const API_URL = "http://192.168.60.60:8080/o/hindi";
 const API_URL_COMMON = "http://192.168.60.60:8080/";
 const headers = {};
 
-// const API_URL = '/o/hindi';
+// const API_URL = "/o/hindi";
 // const API_URL_COMMON = "/";
 // const csrfToken = window?.Liferay?.authToken || "";
 // const headers = {
@@ -237,12 +237,12 @@ function FormComponent({ mode }) {
     //     if (mode === "edit" && id) {
     //         axios
     //             .put(`${API_URL}/${id}`, form, { headers })
-    //             .then(() => navigate("/boiform"))
+    //             .then(() => navigate("/hindi-qpr-branch-1"))
     //             .catch((err) => console.error("Update Error:", err));
     //     } else {
     //         axios
     //             .post(`${API_URL}/add`, form, { headers })
-    //             .then(() => navigate("/boiform"))
+    //             .then(() => navigate("/hindi-qpr-branch-1"))
     //             .catch((err) => console.error("Add Error:", err));
     //     }
     // };
@@ -256,7 +256,7 @@ function FormComponent({ mode }) {
                 : axios.post(`${API_URL}/add`, form, { headers });
 
         request
-            .then(() => navigate("/boiform"))
+            .then(() => navigate("/hindi-qpr-branch-1"))
             .catch((err) => {
                 if (err && err.status === 409) {
                     const duplicateRRN = err?.response?.data
@@ -265,7 +265,7 @@ function FormComponent({ mode }) {
                     const msg = `Data already present please edit the existing records if you have rights ${duplicateRRN}`;
                     const confirmRoute = window.confirm(msg);
                     if (!confirmRoute) return;
-                    navigate("/boiform");
+                    navigate("/hindi-qpr-branch-1");
                 }
                 console.error("Submit Error:", err);
             })
@@ -1514,6 +1514,16 @@ function FormComponent({ mode }) {
                             value={form.stdCode_}
                             onChange={handleChange}
                             disabled={mode === "view"}
+                            onInput={(e) => {
+                                e.target.value = e.target.value.replace(
+                                    /[^\d\-]/g,
+                                    ""
+                                );
+                            }}
+                            maxLength={13} // Max: 5 (STD) + 1 (dash) + 8 (number)
+                            pattern="^[0][1-9]{2,4}-[0-9]{6,8}$"
+                            title="मान्य STD कोड और फ़ोन नंबर दर्ज करें जैसे 011-23456789"
+                            placeholder="मान्य STD कोड और फ़ोन नंबर दर्ज करें जैसे 011-23456789"
                         />
                     </div>
                 </div>
@@ -1529,6 +1539,16 @@ function FormComponent({ mode }) {
                             value={form.faxNumber}
                             onChange={handleChange}
                             disabled={mode === "view"}
+                            onInput={(e) => {
+                                e.target.value = e.target.value.replace(
+                                    /[^\d]/g,
+                                    ""
+                                );
+                            }}
+                            maxLength={10}
+                            pattern="^[2-9]\d{9}$"
+                            title="10 अंकों का फ़ैक्स नंबर दर्ज करें जो 2 से 9 के बीच के अंक से शुरू होता है"
+                            placeholder="10 अंकों का फ़ैक्स नंबर दर्ज करें जो 2 से 9 के बीच के अंक से शुरू होता है"
                         />
                     </div>
                 </div>
@@ -1557,7 +1577,7 @@ function FormComponent({ mode }) {
                     <button
                         className="btn btn-secondary"
                         type="button"
-                        onClick={() => navigate("/boiform")}
+                        onClick={() => navigate("/hindi-qpr-branch-1")}
                     >
                         Cancel
                     </button>
